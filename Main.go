@@ -35,8 +35,8 @@ func handler(w http.ResponseWriter, r *http.Request){
 		}
 	} else{
 		surl := r.URL.Path[1:]
-		url,ok  := surl_engine.GetURL(surl)
-		if ok{
+		url,err  := surl_engine.GetURL(surl)
+		if err==false{
 			http.Redirect(w,r,url,http.StatusSeeOther)
 		} else{
 			http.Error(w,"404 Not Found.",http.StatusNotFound)
