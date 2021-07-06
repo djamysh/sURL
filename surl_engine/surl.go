@@ -18,7 +18,6 @@ var rdb = redis.NewClient(&redis.Options{
     DB:       0,  // use default DB
 })
 
-// var url_map = map[base64.Base64]string{}
 var Limit int64 = int64(math.Pow(2,48))
 
 func get_random()base64.Base64{
@@ -26,32 +25,19 @@ func get_random()base64.Base64{
 	return base64.ToBase64(uint64(rand.Int63n(Limit)))
 }
 
-func is_used(surl base64.Base64) bool{
-	get :=  rdb.Get(ctx,surl.String())
-	if get.Err() == redis.Nil{
-		return false
-	} else {
-		return true
-	}
-}
-
-func get_code()base64.Base64{
-	random_code := get_random()
-	ok := is_used(random_code)
-
-	for ;ok;{
-		random_code = get_random()
-		ok = is_used(random_code)
-	}
-
-	return random_code
-}
-
 func AddURL(url string,expiration int) base64.Base64{
-	code := get_code()
-	err := rdb.SetNX(ctx, code.String(), url, time.Duration(expiration)*time.Second).Err()
-	if err != nil {
-		panic(err)
+
+	var code base64.Base64
+
+	for xstat:=false;!xstat; {
+
+		code = get_random()
+		st,err := rdb.SetNX(ctx, code.String(), url, time.Duration(expiration)*time.Second).Result()
+		xstat = st
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return code

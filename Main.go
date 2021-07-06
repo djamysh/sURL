@@ -17,8 +17,6 @@ var form_template = template.Must(template.ParseFiles(project_root + "/templates
 
 func getTimeCoefficient(unitTime string) int{
 	switch unitTime{
-	case "Seconds":
-		return 1
 	case "Minutes":
 		return 60
 	case "Hours":
