@@ -39,25 +39,21 @@ func get_code()base64.Base64{
 	random_code := get_random()
 	ok := is_used(random_code)
 
-	//_,ok := url_map[random_code]
-
 	for ;ok;{
 		random_code = get_random()
 		ok = is_used(random_code)
-		// _,ok = url_map[random_code]
 	}
 
 	return random_code
 }
 
-func AddURL(url string) base64.Base64{
+func AddURL(url string,expiration int) base64.Base64{
 	code := get_code()
-	err := rdb.Set(ctx, code.String(), url, 0).Err()
+	err := rdb.SetNX(ctx, code.String(), url, time.Duration(expiration)*time.Second).Err()
 	if err != nil {
 		panic(err)
 	}
 
-	// url_map[code] = url
 	return code
 }
 
@@ -68,7 +64,6 @@ func GetURL(surl string) (string,bool){
 	// == redis.Nil : specified key not found 
 	// else 	: panic!!!
 
-	//value,ok := url_map[base64.Base64{surl}]
 	var err bool
 
 	if get.Err() != nil{
@@ -93,7 +88,7 @@ func main(){
 				var url string
 				fmt.Print("URL : ")
 				fmt.Scanln(&url)
-				fmt.Println("URL has been shortened to ",AddURL(url))
+				fmt.Println("URL has been shortened to ",AddURL(url,0))
 			case 101:
 				var surl string
 				fmt.Print("Shortened URL : ")
